@@ -5,14 +5,26 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/openai"
 	"github.com/tmc/langchaingo/schema"
 )
+
+func srv() {
+	app := gin.Default()
+	app.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Hello World!",
+		})
+	})
+	app.Run(":80")
+}
 
 func askSkippy(ctx context.Context, llm *openai.Chat, lang string) {
 	completion, err := llm.Call(ctx, []schema.ChatMessage{
@@ -31,6 +43,10 @@ func askSkippy(ctx context.Context, llm *openai.Chat, lang string) {
 }
 
 func main() {
+	//start server
+
+	srv()
+
 	// Load .env file
 	err := godotenv.Load()
 	if err != nil {
