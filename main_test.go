@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"github.com/tmc/langchaingo/llms"
 	"testing"
 
 	"github.com/stretchr/testify/mock"
@@ -14,11 +13,6 @@ type MockChat struct {
 	mock.Mock
 }
 
-func (m *MockChat) Call(ctx context.Context, messages []schema.ChatMessage, options ...llms.CallOption) (*schema.AIChatMessage, error) {
-	args := m.Called(ctx, messages, options)
-	return args.Get(0).(*schema.AIChatMessage), args.Error(1)
-}
-
 func TestAskSkippy(t *testing.T) {
 	// Create an instance of our mock Chat
 	mockChat := new(MockChat)
@@ -26,8 +20,8 @@ func TestAskSkippy(t *testing.T) {
 	// Setup expectations
 	mockChat.On("Call", mock.Anything, mock.Anything, mock.Anything).Return(&schema.AIChatMessage{Content: "Mocked response"}, nil)
 
-	// Call the askSkippy function
-	response, err := askSkippy(context.Background(), mockChat, "English")
+	// Call the askSkippy function with a custom message
+	response, err := askSkippy(context.Background(), mockChat, "English", "Test message for Skippy")
 
 	// Check for errors
 	if err != nil {
@@ -45,11 +39,10 @@ func TestAskSkippy_Error(t *testing.T) {
 	mockChat := new(MockChat)
 
 	// Setup expectations for an error scenario
-	emptyResponse := &schema.AIChatMessage{}
-	mockChat.On("Call", mock.Anything, mock.Anything, mock.Anything).Return(emptyResponse, errors.New("Mocked error"))
+	mockChat.On("Call", mock.Anything, mock.Anything, mock.Anything).Return(nil, errors.New("Mocked error"))
 
-	// Call the askSkippy function
-	_, err := askSkippy(context.Background(), mockChat, "English")
+	// Call the askSkippy function with a custom message
+	_, err := askSkippy(context.Background(), mockChat, "English", "Test error message for Skippy")
 
 	// Check for errors
 	if err == nil {

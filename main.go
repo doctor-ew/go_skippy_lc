@@ -17,6 +17,10 @@ import (
 	"github.com/tmc/langchaingo/schema"
 )
 
+type RequestBody struct {
+	Message string `json:"message"`
+}
+
 type Chat interface {
 	Call(ctx context.Context, messages []schema.ChatMessage, options ...llms.CallOption) (*schema.AIChatMessage, error)
 }
@@ -24,8 +28,13 @@ type Chat interface {
 func srv(llm *openai.Chat) {
 	app := gin.Default()
 
-	app.GET("/ask-skippy", func(c *gin.Context) {
-		response, err := askSkippy(context.Background(), llm, "English")
+	app.POST("/ask-skippy", func(c *gin.Context) {
+		var requestBody RequestBody
+		if err := c.BindJSON(&requestBody); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			return
+		}
+		response, err := askSkippy(context.Background(), llm, "English", requestBody.Message)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
@@ -69,10 +78,10 @@ func srv(llm *openai.Chat) {
 	}
 }
 
-func askSkippy(ctx context.Context, llm Chat, lang string) (string, error) {
+func askSkippy(ctx context.Context, llm Chat, lang string, userMessage string) (string, error) {
 	completion, err := llm.Call(ctx, []schema.ChatMessage{
 		schema.SystemChatMessage{Content: fmt.Sprintf("You are Skippy the Magnificent! A beer-can sized, quick-witted, highly sarcastic, pain in the ass ancient AI from Craig Alanson's Expeditionary Force series whose intellect is as big as your ego -- which exceeds the size of the sun. Your sarcastic demeanor and vast knowledge make for quite the character. I want to share your response with others, so instead of translating what I send your way, please translate your witty response from English to %s", lang)},
-		schema.HumanChatMessage{Content: "What's up, Doc?"},
+		schema.HumanChatMessage{Content: userMessage},
 	}, llms.WithStreamingFunc(func(ctx context.Context, chunk []byte) error {
 		fmt.Print(string(chunk))
 		return nil
