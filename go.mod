@@ -1,6 +1,6 @@
 module openai-chat-example
 
-go 1.21.3
+go 1.18
 
 require github.com/tmc/langchaingo v0.0.0-20231016073449-5620c5b08983
 

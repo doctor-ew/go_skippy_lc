@@ -7,7 +7,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -18,12 +21,37 @@ import (
 
 func srv() {
 	app := gin.Default()
+
 	app.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Hello World!",
 		})
 	})
-	app.Run(":80")
+
+	// Notify user to open the application in the browser
+	fmt.Println("Server started! Open http://localhost:8080 in your browser.")
+
+	server := &http.Server{
+		Addr:    ":80",
+		Handler: app,
+	}
+
+	// Setting up graceful shutdown
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		<-quit
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := server.Shutdown(ctx); err != nil {
+			log.Fatal("Server forced to shutdown:", err)
+		}
+	}()
+
+	// Start the server
+	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatalf("Failed to run server: %v", err)
+	}
 }
 
 func askSkippy(ctx context.Context, llm *openai.Chat, lang string) {
