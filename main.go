@@ -53,7 +53,7 @@ func srv(llm *openai.Chat) {
 	})
 
 	// Notify user to open the application in the browser
-	fmt.Println("Server started! Open http://localhost:8080 in your browser.")
+	fmt.Println("Server started! Open http://localhost in your browser.")
 
 	server := &http.Server{
 		Addr:    ":80",
