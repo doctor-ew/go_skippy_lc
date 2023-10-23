@@ -6,3 +6,5 @@ RUN go mod download
 COPY . .
 RUN go build -o ./out/dist .
 CMD ./out/dist
+EXPOSE 80
+EXPOSE 8080
