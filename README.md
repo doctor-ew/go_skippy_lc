@@ -1,7 +1,3 @@
-Certainly! Here's a README for your project:
-
----
-
 # GPT-Powered Translator with LangChain
 
 This project demonstrates how to build a GPT-powered translator using LangChain, a library that simplifies the process of building applications with OpenAI's models. The application allows users to interact with the GPT model and request translations in various languages.
