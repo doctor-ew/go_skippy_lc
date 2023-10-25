@@ -46,3 +46,7 @@ Feel free to fork this repository and submit pull requests for any enhancements 
 ## License
 
 This project is open source and available under the [MIT License](LICENSE).
+
+---
+
+Footnote: This README was crafted with the assistance of my GPT Assistant, A.C.E. (Artificial Chat Engineer).

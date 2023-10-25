@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/tmc/langchaingo/llms"
@@ -27,6 +28,17 @@ type Chat interface {
 
 func srv(llm *openai.Chat) {
 	app := gin.Default()
+
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{
+		"http://local.doctorew.com:5173",
+		"https://www.doctorew.com",
+		"https://doctorew.com",
+	}
+	config.AllowMethods = []string{"GET", "POST"}
+	config.AllowHeaders = []string{"Origin", "Content-Type"}
+
+	app.Use(cors.New(config))
 
 	app.POST("/ask-skippy", func(c *gin.Context) {
 		var requestBody RequestBody
@@ -53,7 +65,7 @@ func srv(llm *openai.Chat) {
 	})
 
 	// Notify user to open the application in the browser
-	fmt.Println("Server started! Open http://localhost:8080 in your browser.")
+	fmt.Println("Server started! Open http://localhost in your browser.")
 
 	server := &http.Server{
 		Addr:    ":80",
